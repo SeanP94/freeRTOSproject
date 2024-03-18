@@ -2,9 +2,7 @@
 #include <stdlib.h>
 
 #include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
 
-#include "esp_log.h"
 #include "esp_event.h"
 #include "driver/gpio.h"    
 
@@ -12,9 +10,7 @@
 
 
 void toggleLED(void *parameter) {
-    const char *taskName = pcTaskGetName(NULL);
     uint8_t switcher = 1;
-    // ESP_LOGI(taskName, "LED Pin light up is a go!\n");
     for (;;) {
         vTaskDelay(500 / portTICK_PERIOD_MS);
         gpio_set_level(LED_BLINK_PIN, switcher);
@@ -22,13 +18,21 @@ void toggleLED(void *parameter) {
     }
 }
 
+void printUpdates(void *parameter) {
+    
+    for(;;) {
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+        printf("Hello from the 2nd task!\n");
+    }
+}
+
 
 void app_main() {
     // Log the startup and get variables.
-    char *firstTask = pcTaskGetName(NULL);
-    ESP_LOGI(firstTask, "Hello, Startup!");
+    printf("Hello, Startup!\n");
     TaskHandle_t xHandler = NULL;
     BaseType_t xLEDTask;
+    BaseType_t xPrintTask;
     
     // Create the GPIO LED Pin
     /*
@@ -49,12 +53,22 @@ void app_main() {
     xLEDTask = xTaskCreate(
         toggleLED,          // Task
         "LED Toggle Task",  // Name task
-        1024,               // this is the stack size in words.
+        1000,               // this is the stack size in words.
+        NULL,               // No Parameters
+        2,                  // Low priority
+        NULL           // Handler of the tasks
+    );
+
+    xPrintTask = xTaskCreate(
+        printUpdates,          // Task
+        "Print Task",  // Name task
+        1000,               // this is the stack size in words.
         NULL,               // No Parameters
         1,                  // Low priority
-        &xHandler           // Handler of the tasks
+        NULL           // Handler of the tasks
     );
-    configASSERT(xHandler);
+
+    // configASSERT(xHandler);
     
     // Run so the other function can run forever.
     for (;;) {}
@@ -62,5 +76,5 @@ void app_main() {
     // Cleanup
     if (xHandler != NULL)
         vTaskDelete(xHandler);
-    ESP_LOGI(firstTask, "Buh-Bye!");
+    printf("Buh-Bye!\n");
 }
