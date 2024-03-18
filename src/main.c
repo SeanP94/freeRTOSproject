@@ -56,7 +56,7 @@ void app_main() {
         1000,               // this is the stack size in words.
         NULL,               // No Parameters
         2,                  // Low priority
-        NULL           // Handler of the tasks
+        &xHandler           // Handler of the tasks
     );
 
     xPrintTask = xTaskCreate(
@@ -65,16 +65,20 @@ void app_main() {
         1000,               // this is the stack size in words.
         NULL,               // No Parameters
         1,                  // Low priority
-        NULL           // Handler of the tasks
+        &xHandler           // Handler of the tasks
     );
 
-    // configASSERT(xHandler);
+    configASSERT(xHandler);
     
     // Run so the other function can run forever.
-    for (;;) {}
+    for (;;) {
+
+        // Use this to stop the watchdog from failing and rebooting.
+        vTaskDelay(500 / portTICK_PERIOD_MS);
+    }
 
     // Cleanup
     if (xHandler != NULL)
-        vTaskDelete(xHandler);
+        vTaskDelete(xHandler); 
     printf("Buh-Bye!\n");
 }
