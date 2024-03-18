@@ -6,10 +6,11 @@
 #include "esp_event.h"
 #include "driver/gpio.h"    
 
-#define LED_BLINK_PIN GPIO_NUM_2
+#define LED_BLINK_PIN GPIO_NUM_27
 
 
 void toggleLED(void *parameter) {
+    // Task flips a LED on and off.
     uint8_t switcher = 1;
     for (;;) {
         vTaskDelay(500 / portTICK_PERIOD_MS);
@@ -19,7 +20,7 @@ void toggleLED(void *parameter) {
 }
 
 void printUpdates(void *parameter) {
-    
+    // Task just prints
     for(;;) {
         vTaskDelay(500 / portTICK_PERIOD_MS);
         printf("Hello from the 2nd task!\n");
@@ -28,27 +29,21 @@ void printUpdates(void *parameter) {
 
 
 void app_main() {
-    // Log the startup and get variables.
+    // Log the startup and get RTOS task variables.
     printf("Hello, Startup!\n");
     TaskHandle_t xHandler = NULL;
     BaseType_t xLEDTask;
     BaseType_t xPrintTask;
     
-    // Create the GPIO LED Pin
-    /*
-        Not sure why this isnt working... for now use the 2 lines below.
-        gpio_config_t ledGpioConfig = {
-            .pin_bit_mask = LED_BLINK_PIN,
-            .mode =  GPIO_MODE_OUTPUT,
-            .pull_up_en = GPIO_PULLUP_DISABLE,
-            .pull_down_en = GPIO_PULLDOWN_DISABLE,
-            .intr_type = GPIO_INTR_DISABLE
-        };
-        ESP_ERROR_CHECK(gpio_config(&ledGpioConfig));
-    */
-    esp_rom_gpio_pad_select_gpio(LED_BLINK_PIN);
-    gpio_set_direction(LED_BLINK_PIN, GPIO_MODE_OUTPUT);
-
+    // Configure the GPIO LED Pin
+    gpio_config_t ledGpioConfig = {
+        .pin_bit_mask = (1ULL << LED_BLINK_PIN),
+        .mode =  GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .intr_type = GPIO_INTR_DISABLE
+    };
+    ESP_ERROR_CHECK(gpio_config(&ledGpioConfig));
 
     xLEDTask = xTaskCreate(
         toggleLED,          // Task
@@ -72,12 +67,11 @@ void app_main() {
     
     // Run so the other function can run forever.
     for (;;) {
-
         // Use this to stop the watchdog from failing and rebooting.
         vTaskDelay(500 / portTICK_PERIOD_MS);
     }
 
-    // Cleanup
+    // Cleanup the tasks.
     if (xHandler != NULL)
         vTaskDelete(xHandler); 
     printf("Buh-Bye!\n");
