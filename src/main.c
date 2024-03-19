@@ -6,8 +6,9 @@
 #include "esp_event.h"
 #include "driver/gpio.h"    
 
-#define LED_BLINK_PIN GPIO_NUM_27
 
+#define ON_BOARD_LED_BLINK_PIN GPIO_NUM_2
+#define LED_BLINK_PIN GPIO_NUM_27
 
 void toggleLED(void *parameter) {
     // Task flips a LED on and off.
@@ -19,11 +20,13 @@ void toggleLED(void *parameter) {
     }
 }
 
-void printUpdates(void *parameter) {
-    // Task just prints
-    for(;;) {
+void toggleOnBoardLED(void *parameter) {
+    // Task flips a LED on and off.
+    uint8_t switcher = 0;
+    for (;;) {
         vTaskDelay(500 / portTICK_PERIOD_MS);
-        printf("Hello from the 2nd task!\n");
+        gpio_set_level(ON_BOARD_LED_BLINK_PIN, switcher);
+        switcher = 1 - switcher;
     }
 }
 
@@ -37,7 +40,7 @@ void app_main() {
     
     // Configure the GPIO LED Pin
     gpio_config_t ledGpioConfig = {
-        .pin_bit_mask = (1ULL << LED_BLINK_PIN),
+        .pin_bit_mask = (1ULL << LED_BLINK_PIN | 1ULL << ON_BOARD_LED_BLINK_PIN),
         .mode =  GPIO_MODE_OUTPUT,
         .pull_up_en = GPIO_PULLUP_DISABLE,
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
@@ -55,12 +58,12 @@ void app_main() {
     );
 
     xPrintTask = xTaskCreate(
-        printUpdates,          // Task
-        "Print Task",  // Name task
-        1000,               // this is the stack size in words.
-        NULL,               // No Parameters
-        1,                  // Low priority
-        &xHandler           // Handler of the tasks
+        toggleOnBoardLED,          // Task
+        "LED OnBoard ToggleTask",  // Name task
+        1000,                      // this is the stack size in words.
+        NULL,                      // No Parameters
+        1,                         // Low priority
+        &xHandler                  // Handler of the tasks
     );
 
     configASSERT(xHandler);
