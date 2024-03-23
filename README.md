@@ -1,6 +1,6 @@
 # freeRTOSproject
 ---
-Project for learning about the freeRTOS application. This will become more defined later but for now, I'm using the ESP32 board with the ESPIDF for learning about how to properly use an RTOS. 
+Project for learning about the freeRTOS framework. This will become more defined later but for now, I'm using the ESP32 board with the ESPIDF for learning about how to properly use an RTOS. 
 
 This project is based off one I have completed already in college where I made a crude gardening center with a Arduino IoT 33 controlled in the Arduino cloud. But this project is to expand on that and use a more advanced structure than Arduino.
 
@@ -39,3 +39,13 @@ We need a way to control the garden center.
 *Option 1:* We build a small control box. That can be used anywhere in the house, which would use a 2nd ESP32 that would directly connect to the Garden HTTP server. This controller will GET the current state/readings of each sensor and be able to POST a command to run the pump.
 
 *Option2:* Instead of a 2nd IoT device, we'll do everything the same but in a Mobile App/Web Page. Will probably port forward the device on my network if I do this.  
+
+
+#### Debugging Notes
+---
+If using the ESP-Prog for using a debugger like I am, use this video as reference for setup.
+
+(Remember if you get the red error the driver just needs to be regenerated in zadig)
+
+
+https://www.youtube.com/watch?v=TivyIFF-dzw&t=34s&ab_channel=BrianLough
