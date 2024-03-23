@@ -6,6 +6,8 @@
 #include "esp_event.h"
 #include "driver/gpio.h"    
 
+#include "myDHT.h"
+
 #define ON_BOARD_LED GPIO_NUM_2
 
 #define LED_BLINK_PIN GPIO_NUM_27
@@ -28,6 +30,7 @@ void toggleLED(void *parameter) {
 void dhtTask(void *parameter) {
     for (;;) {
         vTaskDelay(MAIN_PAUSE_TIME);
+        myDHT_test();
     }
 }
 
